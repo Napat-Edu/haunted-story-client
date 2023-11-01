@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Typography } from "@mui/material";
 
 interface IKeywordDialog {
     isKeywordDialogOpen: boolean,
@@ -9,18 +9,29 @@ interface IKeywordDialog {
 export const KeywordDialog = (props: IKeywordDialog) => {
 
     return (
-        <>
-            <Dialog open={props.isKeywordDialogOpen}>
-                <DialogTitle>คีย์เวิร์ด</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
+        <Dialog
+            fullScreen
+            open={props.isKeywordDialogOpen}
+        >
+            <DialogTitle>คีย์เวิร์ด</DialogTitle>
+            <DialogContent
+                sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+            >
+                <DialogContentText>
+                    <Typography
+                        variant="h2"
+                        component="span"
+                        className="vertical-text"
+                    >
                         {props.keyword}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <button onClick={props.handleCloseKeywordDialog}>ปิด</button>
-                </DialogActions>
-            </Dialog>
-        </>
+                    </Typography>
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <button className="close-button" onClick={props.handleCloseKeywordDialog}>
+                    <img style={{ height: 50 }} src="/close-button.png" alt="close-button" />
+                </button>
+            </DialogActions>
+        </Dialog>
     );
 }

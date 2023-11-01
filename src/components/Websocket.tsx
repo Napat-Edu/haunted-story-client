@@ -1,10 +1,11 @@
 import { FormEvent, SetStateAction, useContext, useEffect, useState } from "react";
 import { WebsocketContext } from "../contexts/WebsocketContext";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import { KeywordDialog } from './KeywordDialog';
 import { Candle } from "./Candle";
 import { NameInputForm } from "./NameInputForm";
 import { PlayerSection } from "./PlayerSection";
+import { KeywordForm } from "./KeywordForm";
 
 interface IPlayerData {
     playerName: string,
@@ -90,7 +91,7 @@ export const Websocket = () => {
         socket.emit('start-game', { msg: "host is start the game" });
     };
 
-    const onSubmitKeyword = () => {
+    const onSubmitKeyword = (e: FormEvent<HTMLFormElement>) => {
         socket.emit("keyword-input", {
             msg: "player sent the keywords",
             socketId: socket.id,
@@ -99,6 +100,7 @@ export const Websocket = () => {
                 subKey: subKeywordInput,
             }
         });
+        e.preventDefault();
     };
 
     const onMainKeywordChange = (data: SetStateAction<string>) => {
@@ -139,10 +141,15 @@ export const Websocket = () => {
                         }
                         {
                             isStoryStart ?
-                                <div>
-                                    <button onClick={() => { handleOpenKeywordDialog(currentKeyword.mainKey) }}>เปิดดูคำหลอน</button>
-                                    <button onClick={() => { handleOpenKeywordDialog(currentKeyword.subKey) }}>เปิดดูคำทั่วไป</button>
-                                </div> :
+                                <Grid
+                                    container
+                                    justifyContent="center"
+                                    columnGap={2}
+                                    sx={{ my: 2 }}
+                                >
+                                    <Button variant="contained" onClick={() => { handleOpenKeywordDialog(currentKeyword.mainKey) }}>เปิดดูคำหลอน</Button>
+                                    <Button variant="contained" onClick={() => { handleOpenKeywordDialog(currentKeyword.subKey) }}>เปิดดูคำทั่วไป</Button>
+                                </Grid> :
                                 <></>
                         }
                     </div> :
@@ -164,29 +171,12 @@ export const Websocket = () => {
                     </div>
             }
 
-            <Dialog open={isKeywordFormOpen}>
-                <DialogTitle>ได้เวลาใส่คีย์เวิร์ดแล้ว</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        id="main-keyword"
-                        label="คำสุดหลอน"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => { onMainKeywordChange(e.target.value) }}
-                    />
-                    <TextField
-                        id="sub-keyword"
-                        label="คำทั่วไป"
-                        fullWidth
-                        variant="standard"
-                        onChange={(e) => { onSubKeywordChange(e.target.value) }}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <button onClick={onSubmitKeyword}>ตกลง</button>
-                </DialogActions>
-            </Dialog>
+            <KeywordForm
+                isKeywordFormOpen={isKeywordFormOpen}
+                onMainKeywordChange={onMainKeywordChange}
+                onSubKeywordChange={onSubKeywordChange}
+                onSubmitKeyword={onSubmitKeyword}
+            />
 
             <KeywordDialog
                 isKeywordDialogOpen={isKeywordDialogOpen}

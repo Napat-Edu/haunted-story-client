@@ -4,3 +4,12 @@
     margin-right: auto;
     height: 25px;
 }
+
+.close-button {
+    background-color: inherit;
+    border: none;
+}
+
+.vertical-text {
+    writing-mode: vertical-rl;
+}
