@@ -1,7 +1,10 @@
-import { SetStateAction, useContext, useEffect, useState } from "react";
+import { FormEvent, SetStateAction, useContext, useEffect, useState } from "react";
 import { WebsocketContext } from "../contexts/WebsocketContext";
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField } from "@mui/material";
 import { KeywordDialog } from './KeywordDialog';
+import { Candle } from "./Candle";
+import { NameInputForm } from "./NameInputForm";
+import { PlayerSection } from "./PlayerSection";
 
 interface IPlayerData {
     playerName: string,
@@ -23,7 +26,6 @@ export const Websocket = () => {
 
     const socket = useContext(WebsocketContext);
 
-    const [playerName, setPlayerName] = useState('');
     const [isReady, setIsReady] = useState(false);
     const [isHost, setIsHost] = useState(false);
 
@@ -42,11 +44,10 @@ export const Websocket = () => {
 
     useEffect(() => {
         socket.on('connect', () => {
-            console.log("connected");
+            // connected to server
         });
 
         socket.on('game-state', (state) => {
-            console.log(state.msg);
             setIsKeywordFormOpen(state.isKeywordInputState);
             setIsStoryStart(state.isStoryStart);
         });
@@ -80,9 +81,9 @@ export const Websocket = () => {
         });
     };
 
-    const onEnterGame = () => {
+    const onEnterGame = (e: FormEvent<HTMLFormElement>, playerName: string) => {
         socket.emit('new-player-enter', { playerName: playerName, socketId: socket.id });
-        setPlayerName('');
+        e.preventDefault();
     };
 
     const onStartGame = () => {
@@ -122,63 +123,68 @@ export const Websocket = () => {
             {
                 isReady ?
                     <div>
-                        <h1>Game Room</h1>
-                        {roomInfo.map((player, idx) => {
-                            return (<div key={idx}>{player.playerName}</div>);
-                        })}
+                        <h1>ห้องเล่นเกม</h1>
+                        <PlayerSection roomInfo={roomInfo} />
                         {
                             isHost ?
                                 !isStoryStart ?
-                                    <button onClick={onStartGame}>Game Start</button> :
-                                    <button onClick={onStartGame}>Restart Game</button> :
+                                    <Button variant="contained" color="success" onClick={onStartGame}>เริ่มเกม</Button> :
+                                    <Button variant="contained" color="warning" onClick={onStartGame}>เริ่มเกมใหม่</Button> :
                                 <></>
                         }
                         {
                             (!isHost && !isStoryStart) ?
-                                <div>wait for host start the game...</div> :
+                                <div>รอให้หัวหน้าห้องเริ่มเกม...</div> :
                                 <></>
                         }
                         {
                             isStoryStart ?
                                 <div>
-                                    <button onClick={() => { handleOpenKeywordDialog(currentKeyword.mainKey) }}>open main keyword</button>
-                                    <button onClick={() => { handleOpenKeywordDialog(currentKeyword.subKey) }}>open sub keyword</button>
+                                    <button onClick={() => { handleOpenKeywordDialog(currentKeyword.mainKey) }}>เปิดดูคำหลอน</button>
+                                    <button onClick={() => { handleOpenKeywordDialog(currentKeyword.subKey) }}>เปิดดูคำทั่วไป</button>
                                 </div> :
                                 <></>
                         }
                     </div> :
                     <div>
-                        <h1>Enter Your Name</h1>
-                        <input type="text" value={playerName} onChange={(e) => { setPlayerName(e.target.value) }} />
-                        <button onClick={onEnterGame} >Submit</button>
+                        <h1>Haunted Story</h1>
+                        <Grid
+                            container
+                            justifyContent="center"
+                            columns={{ lg: 12 }}
+                        >
+                            <Grid item lg={4} >
+                                <img className="img-title" src="/ghost-title.png" alt="ghost-title-img" />
+                            </Grid>
+                        </Grid>
+
+                        <NameInputForm
+                            onEnterGame={onEnterGame}
+                        />
                     </div>
             }
 
             <Dialog open={isKeywordFormOpen}>
-                <DialogTitle>Keyword Input</DialogTitle>
+                <DialogTitle>ได้เวลาใส่คีย์เวิร์ดแล้ว</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        main keyword : haunted words <br />
-                        sub keyword : any words you like!
-                    </DialogContentText>
                     <TextField
                         autoFocus
                         id="main-keyword"
-                        label="main keyword"
+                        label="คำสุดหลอน"
                         fullWidth
                         variant="standard"
                         onChange={(e) => { onMainKeywordChange(e.target.value) }}
                     />
                     <TextField
                         id="sub-keyword"
-                        label="sub keyword"
+                        label="คำทั่วไป"
                         fullWidth
                         variant="standard"
                         onChange={(e) => { onSubKeywordChange(e.target.value) }}
                     />
                 </DialogContent>
                 <DialogActions>
-                    <button onClick={onSubmitKeyword}>Submit</button>
+                    <button onClick={onSubmitKeyword}>ตกลง</button>
                 </DialogActions>
             </Dialog>
 
@@ -187,6 +193,8 @@ export const Websocket = () => {
                 keyword={focusKeyword}
                 handleCloseKeywordDialog={handleCloseKeywordDialog}
             />
+
+            <Candle />
         </>
     );
 };

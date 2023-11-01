@@ -11,14 +11,14 @@ export const KeywordDialog = (props: IKeywordDialog) => {
     return (
         <>
             <Dialog open={props.isKeywordDialogOpen}>
-                <DialogTitle>Main Keyword</DialogTitle>
+                <DialogTitle>คีย์เวิร์ด</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         {props.keyword}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <button onClick={props.handleCloseKeywordDialog}>Close</button>
+                    <button onClick={props.handleCloseKeywordDialog}>ปิด</button>
                 </DialogActions>
             </Dialog>
         </>
